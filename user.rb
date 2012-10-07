@@ -31,6 +31,7 @@ class User
 
   def token=(token)
     @token = token
+    PivotalTracker::Client.token = token
     save
   end
 
@@ -44,18 +45,19 @@ class User
   end
 
   def current_project_id=(project_id)
-    @current_tracker = PivotalTracker.new project_id, @token
-    @current_project = @current_tracker.project
+    puts "Setting project to #{project_id}"
+    PivotalTracker::Client.use_ssl = true
+    @current_project = PivotalTracker::Project.find(project_id)
     save
   end
 
   def current_story_id=(id)
-    @current_story = @current_tracker.find_story(id)
+    @current_story = PivotalTracker::Story.find(id, @current_project.id)
     save
   end
   
   def create_story(attributes)
-    @current_story = @current_tracker.create_story Story.new(attributes)
+    @current_story = @current_tracker.create_story PivotalTracker::Story.new(attributes)
     save
     @current_story
   end    
@@ -69,11 +71,11 @@ class User
   end
 
   def find_stories(criteria)
-    @found_stories = @current_tracker.find criteria
+    @found_stories = PivotalTracker::Story.all(@current_project, criteria)
   end
   
   def create_note(text)
-    @current_tracker.create_note @current_story.id, Note.new(:text => text)
+    @current_tracker.create_note @current_story.id, PivotalTracker::Note.new(:text => text)
   end
 
   def self.save_filename(nick)

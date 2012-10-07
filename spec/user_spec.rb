@@ -1,5 +1,5 @@
 require 'set'
-require 'user'
+require_relative '../user.rb'
 require 'pivotal-tracker'
 
 describe "The User class" do
@@ -75,7 +75,7 @@ describe "A user" do
 
   it "should create notes" do
     atts = {:text => 'I totally disagree with this.'}
-    Note.stub!(:new).with(atts).and_return(@the_note)
+    PivotalTracker::Note.stub!(:new).with(atts).and_return(@the_note)
     @user.current_tracker = @the_tracker
     @user.current_story = @the_story
     @the_tracker.should_receive(:create_note).with(@the_story_id, @the_note)
@@ -84,7 +84,7 @@ describe "A user" do
 
   it "should add stories" do
     atts = {:name => 'bananas should be tasty', :story_type => 'feature'}
-    Story.stub!(:new).with(atts).and_return(@the_story)
+    PivotalTracker::Story.stub!(:new).with(atts).and_return(@the_story)
     @user.current_tracker = @the_tracker
     @the_tracker.should_receive(:create_story).with(@the_story).and_return(@the_story)
     story = @user.create_story atts
